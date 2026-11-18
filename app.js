@@ -1,4 +1,4 @@
-import {setupPeers} from './peer.js';
+import {setupPeers} from './peer.js?v=0.2.1';
 const $=id=>document.getElementById(id), q=new URLSearchParams(location.search), output=q.has('overlay'), key='advocate-v1', other=h=>h==='Linus'?'Luke':'Linus';
 const defaults={setup:'Enter',next:'Space',back:'Shift+Space',Linus:'1',Luke:'2',Heads:'H',Tails:'T',flip:'F',pause:'P',restart:'R',add:'Equal',subtract:'Minus',toggle:'O',timer:'C',clear:'Ctrl+Shift+X',end:'Ctrl+Shift+E'};
 const initial=()=>({stage:0,topic:'Should AI be used to reverse-engineer games?',Heads:'Protect game developers',Tails:'Defend user freedom',think:30,Linus:120,Luke:120,left:'Linus',layout:'split',placement:'center',theme:'wan',caller:null,call:null,result:null,flipAt:0,remaining:0,total:0,deadline:0,visible:true,timerVisible:true,done:false,enabled:true,keys:{...defaults}});

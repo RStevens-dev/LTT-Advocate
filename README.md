@@ -1,32 +1,35 @@
 # LTT-Advocate — Devil’s Advocate overlay
 
-**v0.1.0-alpha · Experimental community project**
+**v0.2.0-alpha · Experimental community project**
 
 A compact, browser-based debate graphics system inspired by the Devil’s Advocate segment of the WAN Show. Designed to preserve the camera feed, make assigned arguments obvious and retain context in social clips.
 
 This is an unofficial fan project. It is not affiliated with or endorsed by Linus Media Group, LTT or the WAN Show. No official logos, footage or proprietary assets are included.
 
-## Online preview (GitHub Pages)
+## Quick start — browser only
 
-Expected demo URL after Pages is enabled: https://rstevens-dev.github.io/LTT-Advocate/
+Open https://rstevens-dev.github.io/LTT-Advocate/ after GitHub Pages is enabled. No local server, Python, npm, account, or backend is required. GitHub Pages serves static assets only.
 
-Repository administrators: open Settings → Pages, choose Deploy from a branch, select main and /(root), then Save. No build step is needed. The public preview uses browser-local state; open overlay tabs in the same browser profile. Use the local Python server for actual cross-browser OBS synchronization.
+Repository administrators: Settings → Pages → Deploy from a branch → main → /(root) → Save.
 
-The producer preview includes an illustrative WAN-inspired camera mockup. Click **Transparent preview** to replace the mock set with a checkerboard, or **Mock camera preview** to restore it. Actual overlay URLs always render without the mock camera or checkerboard.
+The producer page includes a WAN-inspired mock camera preview and a transparent checkerboard toggle. Display pages always use a transparent background.
 
-## Quick start
+### Same browser profile
 
-Requires a modern browser and Python 3 (for a local static HTTP server). No npm install, account or external service is required.
+Open a display link from the producer. BroadcastChannel and localStorage synchronize tabs on the same origin and storage partition automatically. Keep one producer open.
 
-```sh
-git clone https://github.com/RStevens-dev/LTT-Advocate.git
-cd LTT-Advocate
-python server.py
-```
+### Different browsers / OBS
 
-Open http://127.0.0.1:8765/ in a browser. Keep the server running. On Windows, use `py server.py` if necessary.
+1. In the producer, click **Pair another display**, then **Generate offer**.
+2. Open the matching **Pair wide**, **Pair linus**, etc. link in the other browser or OBS Browser Source. It ends in `&pair=1`.
+3. On the display, click **Pair with producer**, paste the producer offer and click **Accept offer / generate response**.
+4. Copy the generated response back to the producer's response field and click **Accept response**.
+5. Wait for Connected on both ends, then click **Hide pairing panel / go on air** on the display. Escape toggles the pairing panel for troubleshooting; never do this on a live output.
+6. Repeat for each additional display. Each requires its own offer/answer pair.
 
-For a quick synchronization test, open http://127.0.0.1:8765/?overlay=wide in another tab of the same or a different browser profile. The overlay has a transparent background; the producer preview uses a colored placeholder, not a real camera feed.
+In OBS use Interact to paste the codes and hide the panel before taking the source live. Do not refresh or unload a paired source; reloading destroys the connection and requires pairing again. Pairing codes contain local network connection metadata; exchange only with trusted operators.
+
+WebRTC uses host ICE candidates only, with no STUN, TURN or signaling server. Browser privacy policies, mDNS, firewalls or OBS Chromium support can prevent connections. A disconnected display retains its last state and its timer continues locally; emergency clear cannot reach a disconnected display. Verify connections before going live.
 
 ## Five-stage workflow
 
@@ -48,13 +51,13 @@ Heads maps to the first configured position and Tails to the second. The caller 
 
 | URL suffix | Canvas | Intended use |
 |---|---|---|
-| ?overlay=wide | 1920 × 1080 | Main show |
-| ?overlay=linus | 1080 × 1920 | Linus portrait clip |
-| ?overlay=luke | 1080 × 1920 | Luke portrait clip |
-| ?overlay=stack | 1080 × 1920 | Both hosts stacked |
-| ?overlay=square | 1080 × 1080 | Square Linus clip (alpha default) |
+| display.html?overlay=wide | 1920 × 1080 | Main show |
+| display.html?overlay=linus | 1080 × 1920 | Linus portrait clip |
+| display.html?overlay=luke | 1080 × 1920 | Luke portrait clip |
+| display.html?overlay=stack | 1080 × 1920 | Both hosts stacked |
+| display.html?overlay=square | 1080 × 1080 | Square Linus clip (alpha default) |
 
-All URLs are relative to the same server origin. The producer can preview these formats without changing the selected output URL. The alpha uses a shared layout configuration across outputs.
+All URLs are relative to the same static website. The producer can preview these formats without changing the selected output URL. The alpha uses a shared layout configuration across outputs.
 
 Header choices: full width, split headers, combined and minimal. Split repeats the topic above each participant, so horizontal crops retain context. Combined and minimal currently share rendering with split and full respectively; visual differentiation is planned.
 
@@ -64,14 +67,14 @@ Portrait and square outputs contain graphics only. OBS must supply and crop the 
 
 ## OBS setup
 
-1. Start the local server.
-2. Add a Browser Source to your scene, above the camera sources.
-3. Enter the desired overlay URL from the table, with the local server prefix.
-4. Set the matching width and height. Keep the source active and avoid unnecessary refreshes.
-5. Position camera sources underneath the transparent graphics. For portrait outputs, create a portrait scene or separate recording workflow and crop the appropriate camera.
-6. Verify state synchronization before going live.
+1. Add a Browser Source above your cameras.
+2. Enter the full Pages display URL with the desired overlay format and `&pair=1`.
+3. Set the dimensions from the table.
+4. Use Interact to complete pairing, then hide the pairing panel before going live.
+5. Disable shutdown when not visible and refresh when scene becomes active to preserve the connection.
+6. Verify every output, including emergency clear, before broadcast.
 
-****Important alpha limitation:** the local server now shares state across browser profiles using HTTP polling (250 ms). OBS integration has not yet been validated in a real installation. Keep one producer tab open and use the same local server URL. Static hosting alone falls back to browser-local synchronization.nchronization currently uses localStorage and BroadcastChannel, which are scoped to an origin and browser storage profile. OBS's embedded Chromium may not share storage with your desktop browser. For testing, open the producer and overlay in the same browser profile, or test both within OBS browser contexts if they share storage. Cross-process OBS synchronization is not guaranteed. A local WebSocket server is the planned production solution. Do not rely on this alpha for a live show without rehearsing the exact setup.
+OBS compatibility has not been verified. If direct pairing fails, test in two desktop browsers first. There is no server fallback.
 
 ## Hotkeys
 
@@ -97,16 +100,20 @@ Shortcuts require focus in the producer page, outside form controls. Repeated ke
 
 ## Architecture
 
-- `index.html`: producer controls, transparent output shell and styles.
-- `app.js`: state machine, timer deadlines, coin animation, layouts, hotkey handling and browser synchronization.
-- `server.py`: loopback-only HTTP server and in-memory shared state API.\n- `README.md`: installation and operating guide.
+- `index.html`: producer controls and preview.
+- `display.html`: dedicated read-only transparent display entry.
+- `app.js`: state machine, timers, layouts, hotkeys and local synchronization.
+- `peer.js`: WebRTC DataChannel transport and manual offer/answer pairing.
+- `README.md`: operating guide.
 
-The query parameter `overlay` selects read-only output mode. The producer writes state to localStorage and publishes updates via BroadcastChannel. Outputs derive remaining time from an absolute timestamp, avoiding dependence on counting interval ticks. Reloading the same origin restores saved state. Use a single producer tab; concurrent writers are not supported. The optional local backend stores the latest snapshot in memory and exposes GET/POST /api/state. It binds to loopback only and is not intended for remote or untrusted users. There is no authentication or analytics.
+The producer is the sole state writer. It publishes full snapshots over BroadcastChannel and each open peer channel. Displays render timers using absolute deadlines; clocks should be synchronized if using different computers. No backend, analytics, external signaling, or media permissions are required. Static hosting is needed to load the site; opening local files directly is not supported. Refreshing the producer or display requires re-pairing WebRTC connections.
 
 ## Manual acceptance checklist
 
-- [ ] Start the server and load the producer without console errors.
+- [ ] Load the Pages producer without console errors.
 - [ ] Open a wide overlay and verify setup changes after Lock setup.
+- [ ] Pair two different browsers, then multiple displays; verify all receive the same state.
+- [ ] Disconnect a display, verify its timer continues, and re-pair.
 - [ ] Test both callers and both calls; verify assignment and speaking order.
 - [ ] Verify thinking and both argument timers, including zero and early cues.
 - [ ] Test pause/resume, restart, time adjustments, previous stage and reset.
@@ -121,7 +128,7 @@ This checklist is a test plan, not a claim that the tests have passed.
 
 ## Troubleshooting
 
-**Blank or stale overlay:** verify the same scheme, hostname and port. Check the overlay visibility toggle. Reload both pages. Use python server.py rather than a static server for cross-profile synchronization.
+**Blank or stale overlay:** verify the same scheme, hostname and port. Check the overlay visibility toggle. Reload both pages. For separate browsers, complete WebRTC pairing and check the connection state.
 
 **Hotkeys do not work:** enable shortcuts, focus the producer page outside input fields and check browser shortcut conflicts.
 
@@ -133,7 +140,7 @@ This checklist is a test plan, not a claim that the tests have passed.
 
 ## Roadmap
 
-- Upgrade polling transport to WebSockets and add an authenticated action endpoint.
+- Improve pairing UX, connection health and recovery without a backend.
 - OBS-tested multi-output synchronization, reconnection and scene integration.
 - Global hotkeys and Stream Deck profile/API.
 - Distinct combined/minimal layouts and timer placement variants.
@@ -150,4 +157,4 @@ No license has been selected yet; public repository visibility does not itself g
 
 ## Release status
 
-This is the first source-code alpha, not a production-certified release. GitHub Pages activation and verification, formal release tagging, automated tests and real OBS validation are not included in this initial commit series.
+This is the browser-only source-code alpha, not a production-certified release. GitHub Pages activation and verification, formal release tagging, automated tests and real OBS validation are not included in this initial commit series.

@@ -30,7 +30,7 @@ else if((a==='flip'||a==='next')&&s.stage===1&&s.caller&&s.call&&!s.result&&!s.f
 else if(a==='next'&&s.stage===1&&s.result){s.stage=2;start(s.think)}
 else if(a==='next'&&s.stage===2){s.stage=3;start(s[s.caller])}
 else if(a==='next'&&s.stage===3){s.stage=4;start(s[other(s.caller)])}
-else if(a==='next'&&s.stage===4){s.done=true;s.deadline=0}
+else if(a==='next'&&s.stage===4){s.remaining=remaining();s.done=true;s.deadline=0}
 else if(a==='back'&&s.stage>1){s.stage--;s.deadline=0;s.remaining=s.total=s.stage===2?s.think:s.stage===3?s[s.caller]:0}
 else if(a==='pause'&&s.stage>=2){if(s.deadline){s.remaining=remaining();s.deadline=0}else if(s.remaining)s.deadline=Date.now()+s.remaining*1000}
 else if(a==='restart'&&s.stage>=2)start(s.total);
@@ -61,7 +61,7 @@ for(const a of ['Linus','Luke','Heads','Tails','flip','next','back','pause','res
 document.addEventListener('click',e=>{const a=e.target.closest('[data-action]')?.dataset.action;if(a)action(a)});
 for(const id of ['layout','placement','theme','left'])$(id).onchange=()=>{s[id]=$(id).value;save()};
 $('mocktoggle').onclick=()=>{clean=!clean;$('mocktoggle').textContent=clean?'Mock camera preview':'Transparent preview';render()};$('format').onchange=render;$('enabled').onchange=()=>{s.enabled=$('enabled').checked;save()};
-for(const f of ['wide','linus','luke','stack','square']){let a=el('a','',f+' overlay');a.href='display.html?overlay='+f;a.target='_blank';a.rel='noopener';$('links').append(a,document.createTextNode(' · '))}
+for(const f of ['wide','linus','luke','stack','square']){let a=el('a','',f+' overlay');a.href='display.html?overlay='+f;a.target='_blank';a.rel='noopener';$('links').append(a,document.createTextNode(' · '));let pair=el('a','','Pair '+f);pair.href='display.html?overlay='+f+'&pair=1';pair.target='_blank';pair.rel='noopener';$('links').append(pair,document.createTextNode(' · '))}
 $('defaults').onclick=()=>{s.keys={...defaults};save();drawKeys()};
 $('export').onclick=()=>{let a=el('a','');a.href=URL.createObjectURL(new Blob([JSON.stringify(s.keys,null,2)],{type:'application/json'}));a.download='advocate-hotkeys.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $('import').onchange=async()=>{try{let v=JSON.parse(await $('import').files[0].text()),k={};for(const a of Object.keys(defaults)){if(typeof v[a]!=='string')throw Error('Missing '+a);k[a]=v[a]}let used=Object.values(k).filter(Boolean);if(new Set(used).size!==used.length)throw Error('Duplicate bindings');s.keys=k;save();drawKeys();$('message').textContent='Imported'}catch(e){$('message').textContent=e.message}};

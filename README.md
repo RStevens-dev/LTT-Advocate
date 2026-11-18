@@ -166,3 +166,7 @@ The live workspace places the preview beside a large active clock, contextual cu
 ## v0.5 production workflow
 
 Single live preview remains intentional: no Preview/Program switch or Take button. New controls include a stage timeline, contextual controls, named debate presets, topic queue, reversed rebuttal order, optional closing statements, overtime policies, unused-time banking, coin history, custom theme controls, clip metadata, undo, display diagnostics and JSON/CSV event exports. In layout edit mode drag headers/positions or timer; scroll over headers/positions to scale; reset the selected output to defaults. Presets capture committed settings; lock setup to commit draft fields. Queue loading requires setup or a finished debate. Manual clip markers appear in exports. Diagnostics for automatic displays show resolution, version and heartbeat age; direct peer latency is not measured. Undo is in-memory only. Browser and OBS validation, full alignment guides and polished transitions remain pending.
+
+## v0.5.2 branded coin
+
+New sessions default to 30 seconds for every timed stage. Existing saved configurations are retained. Heads uses the LTT SVG from https://commons.wikimedia.org/wiki/File:2018_Linus_Tech_Tips_logo.svg (remote image); tails uses a bundled Floatplane SVG from Simple Icons (https://github.com/simple-icons/simple-icons/blob/develop/icons/floatplane.svg). Logos remain trademarks of their owners. The coin has two rotating faces with orange and blue rims.

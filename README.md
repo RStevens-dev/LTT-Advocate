@@ -13,12 +13,12 @@ Requires a modern browser and Python 3 (for a local static HTTP server). No npm 
 ```sh
 git clone https://github.com/RStevens-dev/LTT-Advocate.git
 cd LTT-Advocate
-python -m http.server 8765 --bind 127.0.0.1
+python server.py
 ```
 
-Open http://127.0.0.1:8765/ in a browser. Keep the server running. On Windows, use `py -m http.server 8765 --bind 127.0.0.1` if necessary.
+Open http://127.0.0.1:8765/ in a browser. Keep the server running. On Windows, use `py server.py` if necessary.
 
-For a quick synchronization test, open http://127.0.0.1:8765/?overlay=wide in another tab of the **same browser profile**. The overlay has a transparent background; the producer preview uses a colored placeholder, not a real camera feed.
+For a quick synchronization test, open http://127.0.0.1:8765/?overlay=wide in another tab of the same or a different browser profile. The overlay has a transparent background; the producer preview uses a colored placeholder, not a real camera feed.
 
 ## Five-stage workflow
 
@@ -63,7 +63,7 @@ Portrait and square outputs contain graphics only. OBS must supply and crop the 
 5. Position camera sources underneath the transparent graphics. For portrait outputs, create a portrait scene or separate recording workflow and crop the appropriate camera.
 6. Verify state synchronization before going live.
 
-**Important alpha limitation:** synchronization currently uses localStorage and BroadcastChannel, which are scoped to an origin and browser storage profile. OBS's embedded Chromium may not share storage with your desktop browser. For testing, open the producer and overlay in the same browser profile, or test both within OBS browser contexts if they share storage. Cross-process OBS synchronization is not guaranteed. A local WebSocket server is the planned production solution. Do not rely on this alpha for a live show without rehearsing the exact setup.
+****Important alpha limitation:** the local server now shares state across browser profiles using HTTP polling (250 ms). OBS integration has not yet been validated in a real installation. Keep one producer tab open and use the same local server URL. Static hosting alone falls back to browser-local synchronization.nchronization currently uses localStorage and BroadcastChannel, which are scoped to an origin and browser storage profile. OBS's embedded Chromium may not share storage with your desktop browser. For testing, open the producer and overlay in the same browser profile, or test both within OBS browser contexts if they share storage. Cross-process OBS synchronization is not guaranteed. A local WebSocket server is the planned production solution. Do not rely on this alpha for a live show without rehearsing the exact setup.
 
 ## Hotkeys
 
@@ -91,14 +91,14 @@ Shortcuts require focus in the producer page, outside form controls. Repeated ke
 
 - `index.html`: producer controls, transparent output shell and styles.
 - `app.js`: state machine, timer deadlines, coin animation, layouts, hotkey handling and browser synchronization.
-- `README.md`: installation and operating guide.
+- `server.py`: loopback-only HTTP server and in-memory shared state API.\n- `README.md`: installation and operating guide.
 
-The query parameter `overlay` selects read-only output mode. The producer writes state to localStorage and publishes updates via BroadcastChannel. Outputs derive remaining time from an absolute timestamp, avoiding dependence on counting interval ticks. Reloading the same origin restores saved state. Use a single producer tab; concurrent writers are not supported. The app has no backend, authentication, analytics or network dependencies beyond serving its own files.
+The query parameter `overlay` selects read-only output mode. The producer writes state to localStorage and publishes updates via BroadcastChannel. Outputs derive remaining time from an absolute timestamp, avoiding dependence on counting interval ticks. Reloading the same origin restores saved state. Use a single producer tab; concurrent writers are not supported. The optional local backend stores the latest snapshot in memory and exposes GET/POST /api/state. It binds to loopback only and is not intended for remote or untrusted users. There is no authentication or analytics.
 
 ## Manual acceptance checklist
 
 - [ ] Start the server and load the producer without console errors.
-- [ ] Open a wide overlay in the same browser profile and verify setup changes after Lock setup.
+- [ ] Open a wide overlay and verify setup changes after Lock setup.
 - [ ] Test both callers and both calls; verify assignment and speaking order.
 - [ ] Verify thinking and both argument timers, including zero and early cues.
 - [ ] Test pause/resume, restart, time adjustments, previous stage and reset.
@@ -113,7 +113,7 @@ This checklist is a test plan, not a claim that the tests have passed.
 
 ## Troubleshooting
 
-**Blank or stale overlay:** verify the same scheme, hostname, port and browser storage profile. Check the overlay visibility toggle. Reload both pages. OBS and a desktop browser may use separate storage.
+**Blank or stale overlay:** verify the same scheme, hostname and port. Check the overlay visibility toggle. Reload both pages. Use python server.py rather than a static server for cross-profile synchronization.
 
 **Hotkeys do not work:** enable shortcuts, focus the producer page outside input fields and check browser shortcut conflicts.
 
@@ -125,7 +125,7 @@ This checklist is a test plan, not a claim that the tests have passed.
 
 ## Roadmap
 
-- Local WebSocket state server and authenticated action endpoint.
+- Upgrade polling transport to WebSockets and add an authenticated action endpoint.
 - OBS-tested multi-output synchronization, reconnection and scene integration.
 - Global hotkeys and Stream Deck profile/API.
 - Distinct combined/minimal layouts and timer placement variants.

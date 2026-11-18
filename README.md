@@ -1,6 +1,6 @@
 # LTT-Advocate — Devil’s Advocate overlay
 
-**v0.2.0-alpha · Experimental community project**
+**v0.3.0-alpha · Experimental community project**
 
 A compact, browser-based debate graphics system inspired by the Devil’s Advocate segment of the WAN Show. Designed to preserve the camera feed, make assigned arguments obvious and retain context in social clips.
 
@@ -14,22 +14,19 @@ Repository administrators: Settings → Pages → Deploy from a branch → main 
 
 The producer page includes a WAN-inspired mock camera preview and a transparent checkerboard toggle. Display pages always use a transparent background.
 
-### Same browser profile
+### 1. Automatic display launch (recommended)
 
-Open a display link from the producer. BroadcastChannel and localStorage synchronize tabs on the same origin and storage partition automatically. Keep one producer open.
+Choose Launch wide, linus, luke, stack or square from the producer's Layout section. A separate window opens and synchronizes automatically in the same browser profile and origin. No pairing required. Allow popups if blocked. Window capture is an alternative to a native OBS Browser Source; transparency may not survive window capture.
 
-### Different browsers / OBS
+### 2. Direct connection links (advanced)
 
-1. In the producer, click **Pair another display**, then **Generate offer**.
-2. Open the matching **Pair wide**, **Pair linus**, etc. link in the other browser or OBS Browser Source. It ends in `&pair=1`.
-3. On the display, click **Pair with producer**, paste the producer offer and click **Accept offer / generate response**.
-4. Copy the generated response back to the producer's response field and click **Accept response**.
-5. Wait for Connected on both ends, then click **Hide pairing panel / go on air** on the display. Escape toggles the pairing panel for troubleshooting; never do this on a live output.
-6. Repeat for each additional display. Each requires its own offer/answer pair.
+Select the desired format in the advanced connection section, click Pair another display, then Generate offer. Copy the generated link into the other browser. The display automatically accepts the offer and generates a response link. Copy that response link into the existing producer pairing row and click Accept response. Once connected, hide the pairing panel. Repeat for each display. Do not navigate the producer to the response link; paste it into the existing row.
 
-In OBS use Interact to paste the codes and hide the panel before taking the source live. Do not refresh or unload a paired source; reloading destroys the connection and requires pairing again. Pairing codes contain local network connection metadata; exchange only with trusted operators.
+Links contain connection metadata in the URL fragment; share only with trusted operators. No STUN, TURN or signaling service is used. Browser privacy policies and firewalls may prevent connections. Reloading requires pairing again. Disconnected displays retain the last state and continue their local timers; emergency clear cannot reach them.
 
-WebRTC uses host ICE candidates only, with no STUN, TURN or signaling server. Browser privacy policies, mDNS, firewalls or OBS Chromium support can prevent connections. A disconnected display retains its last state and its timer continues locally; emergency clear cannot reach a disconnected display. Verify connections before going live.
+### 3. OBS integration (experimental)
+
+See OBS setup below. Try automatic synchronization with a custom browser dock first; if storage is isolated, use direct connection links or window capture.
 
 ## Five-stage workflow
 
@@ -65,16 +62,9 @@ Timer choices: center, per-host, inline, bottom and hidden. Per-host and inline 
 
 Portrait and square outputs contain graphics only. OBS must supply and crop the actual camera feed. The stacked layout is experimental and needs calibration; these are not automatic video clipping or recording tools.
 
-## OBS setup
+## OBS setup (experimental)
 
-1. Add a Browser Source above your cameras.
-2. Enter the full Pages display URL with the desired overlay format and `&pair=1`.
-3. Set the dimensions from the table.
-4. Use Interact to complete pairing, then hide the pairing panel before going live.
-5. Disable shutdown when not visible and refresh when scene becomes active to preserve the connection.
-6. Verify every output, including emergency clear, before broadcast.
-
-OBS compatibility has not been verified. If direct pairing fails, test in two desktop browsers first. There is no server fallback.
+Add the producer URL as a custom browser dock and the display URL as a Browser Source. If they share storage, automatic synchronization works without pairing. Otherwise use a generated direct connection link as the Browser Source URL, use Interact to copy the response back to the producer, and hide the pairing panel before going live. Disable source shutdown and scene-activation refresh. OBS compatibility is not yet verified.
 
 ## Hotkeys
 

@@ -170,3 +170,7 @@ Single live preview remains intentional: no Preview/Program switch or Take butto
 ## v0.5.2 branded coin
 
 New sessions default to 30 seconds for every timed stage. Existing saved configurations are retained. Heads uses the LTT SVG from https://commons.wikimedia.org/wiki/File:2018_Linus_Tech_Tips_logo.svg (remote image); tails uses a bundled Floatplane SVG from Simple Icons (https://github.com/simple-icons/simple-icons/blob/develop/icons/floatplane.svg). Logos remain trademarks of their owners. The coin has two rotating faces with orange and blue rims.
+
+## v0.5.3 coin controls
+
+Normal flip and random reflip use cryptographic randomness. Force LTT and Force Floatplane explicitly select the outcome; all use the same 2.4-second animation and are available only during the coin stage after caller and call are selected. Forced outcomes are recorded in history. Both runtime image URLs are repository-relative; the vendor-logo workflow retrieves the original Wikimedia SVG and commits it to assets/ltt.svg. Verify that workflow completed before using this version.

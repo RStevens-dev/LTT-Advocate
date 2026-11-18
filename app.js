@@ -1,4 +1,4 @@
-import {setupPeers} from './peer.js?v=0.2.1';
+import {setupPeers} from './peer.js?v=0.3.0';
 const $=id=>document.getElementById(id), q=new URLSearchParams(location.search), output=q.has('overlay'), key='advocate-v1', other=h=>h==='Linus'?'Luke':'Linus';
 const defaults={setup:'Enter',next:'Space',back:'Shift+Space',Linus:'1',Luke:'2',Heads:'H',Tails:'T',flip:'F',pause:'P',restart:'R',add:'Equal',subtract:'Minus',toggle:'O',timer:'C',clear:'Ctrl+Shift+X',end:'Ctrl+Shift+E'};
 const initial=()=>({stage:0,topic:'Should AI be used to reverse-engineer games?',Heads:'Protect game developers',Tails:'Defend user freedom',think:30,Linus:120,Luke:120,left:'Linus',layout:'split',placement:'center',theme:'wan',caller:null,call:null,result:null,flipAt:0,remaining:0,total:0,deadline:0,visible:true,timerVisible:true,done:false,enabled:true,keys:{...defaults}});
@@ -61,7 +61,7 @@ for(const a of ['Linus','Luke','Heads','Tails','flip','next','back','pause','res
 document.addEventListener('click',e=>{const a=e.target.closest('[data-action]')?.dataset.action;if(a)action(a)});
 for(const id of ['layout','placement','theme','left'])$(id).onchange=()=>{s[id]=$(id).value;save()};
 $('mocktoggle').onclick=()=>{clean=!clean;$('mocktoggle').textContent=clean?'Mock camera preview':'Transparent preview';render()};$('format').onchange=render;$('enabled').onchange=()=>{s.enabled=$('enabled').checked;save()};
-for(const f of ['wide','linus','luke','stack','square']){let a=el('a','',f+' overlay');a.href='display.html?overlay='+f;a.target='_blank';a.rel='noopener';$('links').append(a,document.createTextNode(' · '));let pair=el('a','','Pair '+f);pair.href='display.html?overlay='+f+'&pair=1';pair.target='_blank';pair.rel='noopener';$('links').append(pair,document.createTextNode(' · '))}
+for(const f of ['wide','linus','luke','stack','square']){let row=el('div','row'),a=el('button','','Launch '+f+' display');a.onclick=()=>window.open('display.html?overlay='+f,'advocate-'+f,'popup,width='+ (f==='wide'?960:420)+',height='+(f==='wide'?540:740));row.append(a);$('links').append(row)}
 $('defaults').onclick=()=>{s.keys={...defaults};save();drawKeys()};
 $('export').onclick=()=>{let a=el('a','');a.href=URL.createObjectURL(new Blob([JSON.stringify(s.keys,null,2)],{type:'application/json'}));a.download='advocate-hotkeys.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $('import').onchange=async()=>{try{let v=JSON.parse(await $('import').files[0].text()),k={};for(const a of Object.keys(defaults)){if(typeof v[a]!=='string')throw Error('Missing '+a);k[a]=v[a]}let used=Object.values(k).filter(Boolean);if(new Set(used).size!==used.length)throw Error('Duplicate bindings');s.keys=k;save();drawKeys();$('message').textContent='Imported'}catch(e){$('message').textContent=e.message}};

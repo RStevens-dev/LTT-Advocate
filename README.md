@@ -1,6 +1,6 @@
 # LTT-Advocate — Devil’s Advocate overlay
 
-**v0.3.0-alpha · Experimental community project**
+**v0.4.0-alpha · Experimental community project**
 
 A compact, browser-based debate graphics system inspired by the Devil’s Advocate segment of the WAN Show. Designed to preserve the camera feed, make assigned arguments obvious and retain context in social clips.
 
@@ -28,6 +28,16 @@ Links contain connection metadata in the URL fragment; share only with trusted o
 
 See OBS setup below. Try automatic synchronization with a custom browser dock first; if storage is isolated, use direct connection links or window capture.
 
+## v0.4 operator improvements
+
+- New isolated session opens a unique session URL; launch displays from that producer. The default session remains compatible with existing bookmarks. Use one producer per session.
+- Displays request state every two seconds; producer broadcasts heartbeat snapshots and shows recently seen automatic displays. Default fail-safe hides graphics after 15 seconds without state; zero disables timeout. Direct peers have separate connection indicators.
+- Reload restores saved state, but direct WebRTC links must be paired again. Timers preserve millisecond pause duration; remote clock offset is estimated from snapshot arrival, not a round-trip synchronization protocol.
+- Setup supports landed-face or correct-call-wins-Heads rules, configurable first speaker and optional rebuttal rounds.
+- Layout settings are saved independently by selected preview format. Timer position, scale, safe inset and visibility are adjustable. Enable drag mode to snap the timer to a 5% grid. Other graphics are not yet draggable.
+- Hotkeys support named profiles and a non-destructive test mode.
+- Automated core checks: `node --test tests/*.test.mjs` (development only). GitHub Actions runs core tests and syntax checks. Browser/OBS integration tests remain manual.
+
 ## Five-stage workflow
 
 | Stage | Producer action | Audience sees |
@@ -42,7 +52,7 @@ Timers stop visually at zero; they do not advance the stage. Producers may advan
 
 ### Coin rule (provisional)
 
-Heads maps to the first configured position and Tails to the second. The caller receives whichever face lands, and the other host receives the opposite position. The caller speaks first. The call itself is ceremonial in this alpha; it does not affect assignment. The final segment rules are still open to feedback. The random outcome uses the browser cryptographic random number generator.
+Heads maps to the first configured position and Tails to the second. The caller receives whichever face lands, and the other host receives the opposite position. The caller speaks first by default; setup can override this. The default landed-face rule makes the call ceremonial; the alternative correct-call rule awards Heads on a correct call and Tails otherwise. The final segment rules are still open to feedback. The random outcome uses the browser cryptographic random number generator.
 
 ## Layout and clip outputs
 
@@ -54,7 +64,7 @@ Heads maps to the first configured position and Tails to the second. The caller 
 | display.html?overlay=stack | 1080 × 1920 | Both hosts stacked |
 | display.html?overlay=square | 1080 × 1080 | Square Linus clip (alpha default) |
 
-All URLs are relative to the same static website. The producer can preview these formats without changing the selected output URL. The alpha uses a shared layout configuration across outputs.
+All URLs are relative to the same static website. The producer can preview these formats without changing the selected output URL. Each output can override the shared layout configuration.
 
 Header choices: full width, split headers, combined and minimal. Split repeats the topic above each participant, so horizontal crops retain context. Combined and minimal currently share rendering with split and full respectively; visual differentiation is planned.
 
@@ -147,4 +157,4 @@ No license has been selected yet; public repository visibility does not itself g
 
 ## Release status
 
-This is the browser-only source-code alpha, not a production-certified release. GitHub Pages activation and verification, formal release tagging, automated tests and real OBS validation are not included in this initial commit series.
+This is the browser-only source-code alpha, not a production-certified release. Core automated checks are included; successful CI, formal release tagging, live Pages deployment and real OBS validation have not been verified.

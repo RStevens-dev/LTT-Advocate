@@ -6,6 +6,14 @@ A compact, browser-based debate graphics system inspired by the Devil’s Advoca
 
 This is an unofficial fan project. It is not affiliated with or endorsed by Linus Media Group, LTT or the WAN Show. No official logos, footage or proprietary assets are included.
 
+## Online preview (GitHub Pages)
+
+Expected demo URL after Pages is enabled: https://rstevens-dev.github.io/LTT-Advocate/
+
+Repository administrators: open Settings → Pages, choose Deploy from a branch, select main and /(root), then Save. No build step is needed. The public preview uses browser-local state; open overlay tabs in the same browser profile. Use the local Python server for actual cross-browser OBS synchronization.
+
+The producer preview includes an illustrative WAN-inspired camera mockup. Click **Transparent preview** to replace the mock set with a checkerboard, or **Mock camera preview** to restore it. Actual overlay URLs always render without the mock camera or checkerboard.
+
 ## Quick start
 
 Requires a modern browser and Python 3 (for a local static HTTP server). No npm install, account or external service is required.
@@ -132,7 +140,7 @@ This checklist is a test plan, not a claim that the tests have passed.
 - Per-output layout settings, adjustable anchors, safe areas and text fitting.
 - Actual camera-reference calibration and improved animations.
 - Automated state-machine, browser and integration tests.
-- Optional GitHub Pages demo, release packaging and accessibility review.
+- GitHub Pages deployment verification, release packaging and accessibility review.
 
 ## Feedback and contributing
 
@@ -142,4 +150,4 @@ No license has been selected yet; public repository visibility does not itself g
 
 ## Release status
 
-This is the first source-code alpha, not a production-certified release. GitHub Pages hosting, formal release tagging, automated tests and real OBS validation are not included in this initial commit series.
+This is the first source-code alpha, not a production-certified release. GitHub Pages activation and verification, formal release tagging, automated tests and real OBS validation are not included in this initial commit series.

@@ -5,7 +5,7 @@ const node=(tag,text)=>{let e=document.createElement(tag);if(text)e.textContent=
 function button(label,fn){let b=node('button',label);b.onclick=async()=>{b.disabled=true;try{await fn()}catch(e){status.textContent=e.message}finally{b.disabled=false}};return b}
 const status=node('p','Direct connection · no external signaling');
 const copy=async t=>{try{await navigator.clipboard.writeText(t.value);status.textContent='Link copied'}catch{t.focus();t.select();status.textContent='Copy the selected link'}};
-function link(v){let u=new URL(output?'index.html':'display.html',location.href);if(!output){u.searchParams.set('overlay',format.value);u.searchParams.set('pair','1')}u.hash='connect='+encodeURIComponent(JSON.stringify(v));return u.href}
+function link(v){let u=new URL(output?'index.html':'display.html',location.href);if(!output){u.searchParams.set('overlay',format.value);u.searchParams.set('pair','1');u.searchParams.set('session',new URLSearchParams(location.search).get('session')||'default')}u.hash='connect='+encodeURIComponent(JSON.stringify(v));return u.href}
 const format=node('select');for(let f of ['wide','linus','luke','stack','square']){let o=node('option',f);o.value=f;format.append(o)}
 function decode(t){try{let u=new URL(t);return decodeURIComponent(u.hash.slice('#connect='.length))}catch{return t}}
 function send(p){if(p.dc?.readyState==='open')try{p.dc.send(JSON.stringify({type:'state',state:read()}))}catch{}}

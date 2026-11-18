@@ -1,17 +1,15 @@
+import {setupPeers} from './peer.js';
 const $=id=>document.getElementById(id), q=new URLSearchParams(location.search), output=q.has('overlay'), key='advocate-v1', other=h=>h==='Linus'?'Luke':'Linus';
 const defaults={setup:'Enter',next:'Space',back:'Shift+Space',Linus:'1',Luke:'2',Heads:'H',Tails:'T',flip:'F',pause:'P',restart:'R',add:'Equal',subtract:'Minus',toggle:'O',timer:'C',clear:'Ctrl+Shift+X',end:'Ctrl+Shift+E'};
 const initial=()=>({stage:0,topic:'Should AI be used to reverse-engineer games?',Heads:'Protect game developers',Tails:'Defend user freedom',think:30,Linus:120,Luke:120,left:'Linus',layout:'split',placement:'center',theme:'wan',caller:null,call:null,result:null,flipAt:0,remaining:0,total:0,deadline:0,visible:true,timerVisible:true,done:false,enabled:true,keys:{...defaults}});
 let s=initial(), recording=null, clean=false;
-const localServer=['127.0.0.1','localhost'].includes(location.hostname);
+let peerTransport; const pairing=output&&q.has('pair');
 try{s={...s,...JSON.parse(localStorage.getItem(key)||'{}')}}catch{}
 const channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel(key):null;
-function receive(v){if(v&&typeof v.stage==='number'){s=v;render()}}
-if(channel)channel.onmessage=e=>receive(e.data);
+function receive(v){if(output&&v&&Number.isInteger(v.stage)&&v.stage>=0&&v.stage<=4){s=v;render()}}
+if(channel)channel.onmessage=e=>{if(!output&&e.data?.request)channel.postMessage(s);else receive(e.data)};
 window.addEventListener('storage',e=>{if(e.key===key&&e.newValue)try{receive(JSON.parse(e.newValue))}catch{}});
-let remoteRevision=-1, queue=Promise.resolve();
-function save(){localStorage.setItem(key,JSON.stringify(s));channel?.postMessage(s);if(!output&&localServer){const body=JSON.stringify(s);queue=queue.then(()=>fetch('./api/state',{method:'POST',headers:{'Content-Type':'application/json'},body}).catch(()=>{}));}render()}
-async function poll(){try{const res=await fetch('./api/state',{cache:'no-store'});if(!res.ok)return;const v=await res.json();if(output&&v.state&&v.revision!==remoteRevision){remoteRevision=v.revision;receive(v.state)}}catch{}}
-if(output&&localServer){poll();setInterval(poll,250)}
+function save(){try{localStorage.setItem(key,JSON.stringify(s))}catch{}channel?.postMessage(s);peerTransport?.publish();render()}
 const remaining=()=>s.deadline?Math.max(0,Math.ceil((s.deadline-Date.now())/1000)):s.remaining;
 const speaker=()=>s.stage===3?s.caller:s.stage===4?other(s.caller):null;
 function start(n){s.total=s.remaining=n;s.deadline=n?Date.now()+n*1000:0}
@@ -57,13 +55,13 @@ if(!output){$('status').textContent='Stage '+(s.stage+1)+' / 5 · '+(s.done?'Com
 function fill(){for(const [id,k] of [['topic','topic'],['heads','Heads'],['tails','Tails'],['think','think'],['linus','Linus'],['luke','Luke'],['layout','layout'],['placement','placement'],['theme','theme'],['left','left']])$(id).value=s[k];$('enabled').checked=s.enabled;drawKeys()}
 function drawKeys(){const box=$('keys');box.replaceChildren();for(const a of Object.keys(defaults)){let row=el('div','row'),b=el('button','',recording===a?'Press keys…':s.keys[a]||'Unassigned'),clear=el('button','','Clear');b.onclick=()=>{recording=a;drawKeys();document.body.focus()};clear.onclick=()=>{s.keys[a]='';save();drawKeys()};row.append(el('span','',a),b,clear);box.append(row)}}
 function combo(e){if(['Shift','Control','Alt','Meta'].includes(e.key))return '';let k=e.code==='Space'?'Space':e.code.startsWith('Key')?e.code.slice(3):e.code.startsWith('Digit')?e.code.slice(5):e.code;return [e.ctrlKey?'Ctrl':'',e.altKey?'Alt':'',e.shiftKey?'Shift':'',e.metaKey?'Meta':'',k].filter(Boolean).join('+')}
-if(output){document.body.classList.add('output')}else{
+if(output){document.body.classList.add('output');if(pairing)document.body.classList.add('pairing');}else{
 document.body.tabIndex=-1;
 for(const a of ['Linus','Luke','Heads','Tails','flip','next','back','pause','restart','add','subtract','toggle','timer','clear','end','reset']){let b=el('button','',a);b.dataset.action=a;$('actions').append(b)}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-action]')?.dataset.action;if(a)action(a)});
 for(const id of ['layout','placement','theme','left'])$(id).onchange=()=>{s[id]=$(id).value;save()};
 $('mocktoggle').onclick=()=>{clean=!clean;$('mocktoggle').textContent=clean?'Mock camera preview':'Transparent preview';render()};$('format').onchange=render;$('enabled').onchange=()=>{s.enabled=$('enabled').checked;save()};
-for(const f of ['wide','linus','luke','stack','square']){let a=el('a','',f+' overlay');a.href='?overlay='+f;a.target='_blank';a.rel='noopener';$('links').append(a,document.createTextNode(' · '))}
+for(const f of ['wide','linus','luke','stack','square']){let a=el('a','',f+' overlay');a.href='display.html?overlay='+f;a.target='_blank';a.rel='noopener';$('links').append(a,document.createTextNode(' · '))}
 $('defaults').onclick=()=>{s.keys={...defaults};save();drawKeys()};
 $('export').onclick=()=>{let a=el('a','');a.href=URL.createObjectURL(new Blob([JSON.stringify(s.keys,null,2)],{type:'application/json'}));a.download='advocate-hotkeys.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $('import').onchange=async()=>{try{let v=JSON.parse(await $('import').files[0].text()),k={};for(const a of Object.keys(defaults)){if(typeof v[a]!=='string')throw Error('Missing '+a);k[a]=v[a]}let used=Object.values(k).filter(Boolean);if(new Set(used).size!==used.length)throw Error('Duplicate bindings');s.keys=k;save();drawKeys();$('message').textContent='Imported'}catch(e){$('message').textContent=e.message}};
@@ -72,7 +70,9 @@ fill()}
 setInterval(()=>{if(!output&&s.flipAt&&Date.now()>=s.flipAt){s.result=crypto.getRandomValues(new Uint32Array(1))[0]%2?'Heads':'Tails';s.flipAt=0;save()}else if(s.deadline||s.flipAt)render()},200);
 render();
 
-if(!output)save();
+peerTransport=setupPeers({output,pairing,read:()=>s,receive});
+if(pairing){let b=el('button','','Hide pairing panel / go on air');b.onclick=()=>document.body.classList.remove('pairing');$('pairpanel').prepend(b);document.addEventListener('keydown',e=>{if(e.key==='Escape')document.body.classList.toggle('pairing')})}
+if(output)channel?.postMessage({request:true});else save();
 
 function mockCamera(hosts,stack,single){
 const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');

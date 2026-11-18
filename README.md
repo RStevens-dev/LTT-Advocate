@@ -1,6 +1,6 @@
 # LTT-Advocate — Devil’s Advocate overlay
 
-**v0.4.1-alpha · Experimental community project**
+**v0.5.0-alpha · Experimental community project**
 
 A compact, browser-based debate graphics system inspired by the Devil’s Advocate segment of the WAN Show. Designed to preserve the camera feed, make assigned arguments obvious and retain context in social clips.
 
@@ -162,3 +162,7 @@ This is the browser-only source-code alpha, not a production-certified release. 
 ## v0.4.1 producer and rebuttal update
 
 The live workspace places the preview beside a large active clock, contextual cues and emergency clear. Setup contains a dedicated optional rebuttal section with independent Linus and Luke durations (60 seconds each by default). After both opening arguments, the producer cues the first rebuttal and then the second; the overlay labels the active round REBUTTAL. The same speaking order is used for both rounds. Each rebuttal starts a fresh countdown, independent of opening argument time. OBS and browser integration validation remain pending.
+
+## v0.5 production workflow
+
+Single live preview remains intentional: no Preview/Program switch or Take button. New controls include a stage timeline, contextual controls, named debate presets, topic queue, reversed rebuttal order, optional closing statements, overtime policies, unused-time banking, coin history, custom theme controls, clip metadata, undo, display diagnostics and JSON/CSV event exports. In layout edit mode drag headers/positions or timer; scroll over headers/positions to scale; reset the selected output to defaults. Presets capture committed settings; lock setup to commit draft fields. Queue loading requires setup or a finished debate. Manual clip markers appear in exports. Diagnostics for automatic displays show resolution, version and heartbeat age; direct peer latency is not measured. Undo is in-memory only. Browser and OBS validation, full alignment guides and polished transitions remain pending.

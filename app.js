@@ -7,7 +7,10 @@ const channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel(key):nu
 function receive(v){if(v&&typeof v.stage==='number'){s=v;render()}}
 if(channel)channel.onmessage=e=>receive(e.data);
 window.addEventListener('storage',e=>{if(e.key===key&&e.newValue)try{receive(JSON.parse(e.newValue))}catch{}});
-function save(){localStorage.setItem(key,JSON.stringify(s));channel?.postMessage(s);render()}
+let remoteRevision=-1, queue=Promise.resolve();
+function save(){localStorage.setItem(key,JSON.stringify(s));channel?.postMessage(s);if(!output){const body=JSON.stringify(s);queue=queue.then(()=>fetch('./api/state',{method:'POST',headers:{'Content-Type':'application/json'},body}).catch(()=>{}));}render()}
+async function poll(){try{const res=await fetch('./api/state',{cache:'no-store'});if(!res.ok)return;const v=await res.json();if(output&&v.state&&v.revision!==remoteRevision){remoteRevision=v.revision;receive(v.state)}}catch{}}
+if(output){poll();setInterval(poll,250)}
 const remaining=()=>s.deadline?Math.max(0,Math.ceil((s.deadline-Date.now())/1000)):s.remaining;
 const speaker=()=>s.stage===3?s.caller:s.stage===4?other(s.caller):null;
 function start(n){s.total=s.remaining=n;s.deadline=n?Date.now()+n*1000:0}
@@ -40,7 +43,7 @@ function el(tag,cls,txt){const e=document.createElement(tag);e.className=cls;if(
 function render(){
 const p=$('screen'),f=output?q.get('overlay'):$('format').value, single=['linus','luke','square'].includes(f),stack=f==='stack', hosts=single?[f==='luke'?'Luke':'Linus']:[s.left,other(s.left)];
 p.className=single?'single':'';if(!output){p.style.aspectRatio=stack||f==='linus'||f==='luke'?'9/16':f==='square'?'1':'16/9';p.style.maxWidth=stack||f==='linus'||f==='luke'?'360px':f==='square'?'600px':'';p.style.margin='auto'}
-p.replaceChildren();if(!s.visible)return;
+p.replaceChildren();if(!s.visible){if(!output)$('status').textContent='Overlay hidden · Toggle to restore';return;}
 const grid=el('div','grid');if(single||stack)grid.style.gridTemplateColumns='1fr';p.append(grid);
 function header(){let h=el('div','header');h.append(el('div','brand',"DEVIL'S ADVOCATE"),el('div','',s.topic));return h}
 function clock(){let t=el('div','timer');let n=remaining();t.append(el('small','',s.done?'COMPLETE':n===0?'TIME IS UP':s.stage===2?'THINKING':(speaker()||'')+' SPEAKING'),el('div',n<=10?'urgent':'',String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')));return t}
@@ -67,3 +70,5 @@ document.addEventListener('keydown',e=>{if(e.repeat)return;let k=combo(e);if(!k)
 fill()}
 setInterval(()=>{if(!output&&s.flipAt&&Date.now()>=s.flipAt){s.result=crypto.getRandomValues(new Uint32Array(1))[0]%2?'Heads':'Tails';s.flipAt=0;save()}else if(s.deadline||s.flipAt)render()},200);
 render();
+
+if(!output)save();

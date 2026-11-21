@@ -12,6 +12,11 @@ try{
   const errors=[];
   producer.on('pageerror',e=>errors.push('producer: '+e.message));
   for(let attempt=0;attempt<30;attempt++){try{await producer.goto('http://127.0.0.1:'+port+'/?session=smoke',{waitUntil:'load',timeout:1000});break}catch(e){if(attempt===29)throw e;await new Promise(resolve=>setTimeout(resolve,100))}}
+  const duplicate=await context.newPage();
+  await duplicate.goto('http://127.0.0.1:'+port+'/?session=another',{waitUntil:'load'});
+  await duplicate.locator('#producer-lock-notice').waitFor({timeout:10000});
+  assert.match(await duplicate.locator('#producer-lock-notice').innerText(),/Producer already open/);
+  await duplicate.close();
   const display=await context.newPage();
   display.on('pageerror',e=>errors.push('display: '+e.message));
   await display.goto('http://127.0.0.1:'+port+'/display.html?overlay=wide&session=smoke',{waitUntil:'load'});

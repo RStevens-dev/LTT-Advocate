@@ -8,6 +8,12 @@ A static, browser-only producer interface and graphics package for a WAN Show-st
 
 > This is an unofficial fan project, not affiliated with, endorsed by, or approved by Linus Media Group, Linus Tech Tips, Floatplane, or the WAN Show. Brand marks are used for identification in the prototype; the repository's code license does not grant trademark rights. Obtain permission or replace branded artwork before official use.
 
+## Automatic producer walkthrough
+
+Open **[?walkthrough=1](https://rstevens-dev.github.io/LTT-Advocate/?walkthrough=1)** (or `?tour`) to launch an automated, spotlight-guided rehearsal directly over the producer interface. The tour steps through topic setup, caller and call, coin toss, thinking, both arguments, both rebuttals, optional closings, completion, and emergency clear. Each step explains what the producer does and highlights the relevant control or preview. Use Pause, Next, Back, or Exit tour. Timers are fast-forwarded for demonstration.
+
+**Safety:** Walkthrough mode starts from an isolated sample state, does not overwrite saved producer settings, does not claim the single-producer lock, does not publish to broadcast displays or WebRTC peers, and does not use a real coin outcome. It can be opened while a real producer is active without controlling that show.
+
 ## Fast demonstration
 
 1. Open the producer link in a modern desktop browser.

@@ -1,176 +1,110 @@
-# LTT-Advocate — Devil’s Advocate overlay
+# LTT-Advocate — Devil's Advocate broadcast overlay
 
-**v0.5.0-alpha · Experimental community project**
+**v0.6.0 · Unofficial community prototype · Not production-certified**
 
-A compact, browser-based debate graphics system inspired by the Devil’s Advocate segment of the WAN Show. Designed to preserve the camera feed, make assigned arguments obvious and retain context in social clips.
+A static, browser-only producer interface and graphics package for a WAN Show-style Devil's Advocate debate. The producer controls a coin toss, 30-second thinking and argument timers, optional rebuttals (enabled by default), optional closings, and transparent graphics for OBS and social clips.
 
-This is an unofficial fan project. It is not affiliated with or endorsed by Linus Media Group, LTT or the WAN Show. No official logos, footage or proprietary assets are included.
+**[Open producer](https://rstevens-dev.github.io/LTT-Advocate/)** · **[Wide display](https://rstevens-dev.github.io/LTT-Advocate/display.html?overlay=wide)**
 
-## Quick start — browser only
+> This is an unofficial fan project, not affiliated with, endorsed by, or approved by Linus Media Group, Linus Tech Tips, Floatplane, or the WAN Show. Brand marks are used for identification in the prototype; the repository's code license does not grant trademark rights. Obtain permission or replace branded artwork before official use.
 
-Open https://rstevens-dev.github.io/LTT-Advocate/ after GitHub Pages is enabled. No local server, Python, npm, account, or backend is required. GitHub Pages serves static assets only.
+## Fast demonstration
 
-Repository administrators: Settings → Pages → Deploy from a branch → main → /(root) → Save.
+1. Open the producer link in a modern desktop browser.
+2. Set the topic and two positions. Defaults are **30 seconds** for thinking, each argument, each rebuttal, and each optional closing.
+3. Choose **Lock setup**. Rebuttals are on by default; closing statements are off.
+4. In the **Coin toss** stage, select Linus or Luke as caller, select Heads or Tails, then **Flip**.
+5. Advance through thinking, both arguments, and both rebuttals using **Next** or **Space**.
+6. Use **Emergency clear** (Ctrl+Shift+X) to remove broadcast graphics immediately *from connected displays*.
 
-The producer page includes a WAN-inspired mock camera preview and a transparent checkerboard toggle. Display pages always use a transparent background.
+### Display formats
 
-### 1. Automatic display launch (recommended)
+| Format | Link suffix | Intended canvas |
+| --- | --- | --- |
+| Wide | `display.html?overlay=wide` | 16:9 broadcast |
+| Linus | `display.html?overlay=linus` | 9:16 |
+| Luke | `display.html?overlay=luke` | 9:16 |
+| Stacked | `display.html?overlay=stack` | 9:16 both hosts |
+| Square | `display.html?overlay=square` | 1:1 |
 
-Choose Launch wide, linus, luke, stack or square from the producer's Layout section. A separate window opens and synchronizes automatically in the same browser profile and origin. No pairing required. Allow popups if blocked. Window capture is an alternative to a native OBS Browser Source; transparency may not survive window capture.
+Use **Launch wide display** and the other launch buttons in the producer to open session-matched windows. These windows synchronize through BroadcastChannel when opened under the same origin and browser profile. A separate browser, computer, or isolated OBS Browser Source may require the manual WebRTC offer/answer pairing flow. There is no server-side signaling, STUN, or TURN; some network environments will not support direct pairing.
 
-### 2. Direct connection links (advanced)
+### OBS instructions — experimental
 
-Select the desired format in the advanced connection section, click Pair another display, then Generate offer. Copy the generated link into the other browser. The display automatically accepts the offer and generates a response link. Copy that response link into the existing producer pairing row and click Accept response. Once connected, hide the pairing panel. Repeat for each display. Do not navigate the producer to the response link; paste it into the existing row.
+1. Add a Browser Source using a session-matched display URL. Set dimensions to 1920×1080 for wide, 1080×1920 for portrait, or 1080×1080 for square.
+2. Ensure **Shutdown source when not visible** and **Refresh browser when scene becomes active** are disabled.
+3. Keep the producer open. Verify the output actually receives changes; a browser dock and OBS Browser Source may not share storage.
+4. If automatic synchronization fails, use the producer's direct WebRTC pairing instructions or capture the launched display window (window capture may not preserve alpha).
+5. Test emergency clear and disconnection behavior before live use. A disconnected output cannot receive a clear command until it reconnects; the timeout fail-safe defaults to 15 seconds.
 
-Links contain connection metadata in the URL fragment; share only with trusted operators. No STUN, TURN or signaling service is used. Browser privacy policies and firewalls may prevent connections. Reloading requires pairing again. Disconnected displays retain the last state and continue their local timers; emergency clear cannot reach them.
+**Do not assume OBS integration has been verified.** Actual OBS testing, alpha blending, camera framing, and real-world multi-browser pairing require operator hardware.
 
-### 3. OBS integration (experimental)
+### Coin behavior
 
-See OBS setup below. Try automatic synchronization with a custom browser dock first; if storage is isolated, use direct connection links or window capture.
+Heads uses the bundled LTT-style orange mark; Tails uses the bundled Floatplane mark. Normal flips use `crypto.getRandomValues`. The producer also has Force LTT, Force Floatplane and Reflip controls; forced flips are logged in producer event history. A small highlight appears on the coin rim after each flip. Forced results use a fixed 225° location; random results use other locations. This is an intentionally detectable tell, **not a guarantee of an unbiased coin**. Never describe the forced mode as a fair random flip.
 
-## v0.4 operator improvements
+The default landed-face rule assigns the landed position to the caller, regardless of their call. An alternative call-wins rule is configurable. The caller speaks first by default.
 
-- New isolated session opens a unique session URL; launch displays from that producer. The default session remains compatible with existing bookmarks. Use one producer per session.
-- Displays request state every two seconds; producer broadcasts heartbeat snapshots and shows recently seen automatic displays. Default fail-safe hides graphics after 15 seconds without state; zero disables timeout. Direct peers have separate connection indicators.
-- Reload restores saved state, but direct WebRTC links must be paired again. Timers preserve millisecond pause duration; remote clock offset is estimated from snapshot arrival, not a round-trip synchronization protocol.
-- Setup supports landed-face or correct-call-wins-Heads rules, configurable first speaker and optional rebuttal rounds.
-- Layout settings are saved independently by selected preview format. Timer position, scale, safe inset and visibility are adjustable. Enable drag mode to snap the timer to a 5% grid. Other graphics are not yet draggable.
-- Hotkeys support named profiles and a non-destructive test mode.
-- Automated core checks: `node --test tests/*.test.mjs` (development only). GitHub Actions runs core tests and syntax checks. Browser/OBS integration tests remain manual.
+### Keyboard controls
 
-## Five-stage workflow
+| Key | Action |
+| --- | --- |
+| Enter | Lock setup |
+| Space / Shift+Space | Next / previous |
+| 1 / 2 | Select Linus / Luke |
+| H / T / F | Heads / Tails / flip |
+| P / R | Pause-resume / restart timer |
+| = / - | Add / subtract 10 seconds |
+| O / C | Toggle graphics / timer |
+| Ctrl+Shift+X | Emergency clear |
+| Ctrl+Shift+E | End debate |
 
-| Stage | Producer action | Audience sees |
-|---|---|---|
-| 1 Setup | Enter topic, Heads and Tails positions, shared thinking time and each host’s time. Lock setup. | Topic and candidate positions |
-| 2 Coin toss | Select caller, select their call, then Flip. | Small animated coin, call, outcome and assignments |
-| 3 Thinking | Next starts the shared countdown. | Assigned positions and preparation timer |
-| 4 First argument | Next cues the caller and starts their timer. | Active speaker highlight and countdown |
-| 5 Second argument | Next cues the other host; Next again completes. | Second speaker highlight and countdown |
+Hotkeys are configurable and require focus in the producer window outside input fields. Some shortcuts are reserved by browsers or operating systems.
 
-Timers stop visually at zero; they do not advance the stage. Producers may advance early, pause, resume, restart or adjust the time by ten seconds. Reset preserves setup values and layout preferences. End and emergency clear hide the graphics.
+### Development and automated tests
 
-### Coin rule (provisional)
+This is a static site. No backend, account, analytics, or runtime build process is required.
 
-Heads maps to the first configured position and Tails to the second. The caller receives whichever face lands, and the other host receives the opposite position. The caller speaks first by default; setup can override this. The default landed-face rule makes the call ceremonial; the alternative correct-call rule awards Heads on a correct call and Tails otherwise. The final segment rules are still open to feedback. The random outcome uses the browser cryptographic random number generator.
+```bash
+python3 -m http.server 8000
+# Open http://localhost:8000/
+node --test tests/core.test.mjs
+node --input-type=module --check < app.js
+node --input-type=module --check < peer.js
 
-## Layout and clip outputs
+# Optional Chromium integration test:
+npm install --no-save playwright
+npx playwright install chromium
+node tests/browser-smoke.mjs
+```
 
-| URL suffix | Canvas | Intended use |
-|---|---|---|
-| display.html?overlay=wide | 1920 × 1080 | Main show |
-| display.html?overlay=linus | 1080 × 1920 | Linus portrait clip |
-| display.html?overlay=luke | 1080 × 1920 | Luke portrait clip |
-| display.html?overlay=stack | 1080 × 1920 | Both hosts stacked |
-| display.html?overlay=square | 1080 × 1080 | Square Linus clip (alpha default) |
+GitHub Actions is configured to run unit checks, syntax checks, and a Chromium smoke test. **The presence of a test or workflow is not evidence that its run has passed.** The smoke test checks that the wide display retains the same graphics nodes through heartbeats, forced coin result highlighting, timer continuity, and emergency clear.
 
-All URLs are relative to the same static website. The producer can preview these formats without changing the selected output URL. Each output can override the shared layout configuration.
+### Before sharing with a production team
 
-Header choices: full width, split headers, combined and minimal. Split repeats the topic above each participant, so horizontal crops retain context. Combined and minimal currently share rendering with split and full respectively; visual differentiation is planned.
+- [ ] Verify GitHub Pages serves the current release and no console errors occur.
+- [ ] Confirm a wide display does not flash after 5+ minutes of heartbeats.
+- [ ] Rehearse a complete debate including rebuttals and optional closings.
+- [ ] Test all five formats, long topics, and transparency.
+- [ ] Test a normal coin flip, both forced faces, and the fixed tell.
+- [ ] Verify refresh, reconnect, disconnected output timeout, and emergency clear.
+- [ ] Test an actual OBS Browser Source, not just a browser window.
+- [ ] Test manual pairing across different browsers/computers.
+- [ ] Record a short real capture of the working workflow.
+- [ ] Confirm branding/trademark permissions and obtain operator approval.
 
-Timer choices: center, per-host, inline, bottom and hidden. Per-host and inline currently use the same compact implementation. Themes: WAN-inspired orange, red versus blue, monochrome. Host order is configurable.
+### Known limitations
 
-Portrait and square outputs contain graphics only. OBS must supply and crop the actual camera feed. The stacked layout is experimental and needs calibration; these are not automatic video clipping or recording tools.
+- Automatic synchronization is restricted to same-origin, same-profile browser contexts.
+- WebRTC pairing is manual, can fail due to network policies, and does not survive reload.
+- A disconnected display cannot receive commands. The default fail-safe hides graphics after 15 seconds without producer messages.
+- Remote countdowns estimate producer clock offset using message arrival; network delay can affect accuracy.
+- Browser overlays do not contain or automatically crop live video.
+- OBS and cross-browser operation have **not** been independently certified.
+- Saved settings can preserve older defaults; open a fresh session to test current defaults.
 
-## OBS setup (experimental)
+### Project structure
 
-Add the producer URL as a custom browser dock and the display URL as a Browser Source. If they share storage, automatic synchronization works without pairing. Otherwise use a generated direct connection link as the Browser Source URL, use Interact to copy the response back to the producer, and hide the pairing panel before going live. Disable source shutdown and scene-activation refresh. OBS compatibility is not yet verified.
+`index.html` producer, `display.html` transparent display, `app.js` application, `core.mjs` pure helpers, `peer.js` manual WebRTC, `assets/` bundled artwork, `tests/` unit and browser smoke checks.
 
-## Hotkeys
-
-Click a binding to record a new combination. Escape cancels recording. Clear removes a binding. Duplicate combinations are rejected. Export/import JSON saves and restores the binding map. Disable shortcuts with the checkbox.
-
-| Action | Default |
-|---|---|
-| Lock setup | Enter |
-| Next stage / cue | Space |
-| Previous stage | Shift+Space |
-| Select Linus / Luke | 1 / 2 |
-| Heads / Tails | H / T |
-| Flip | F |
-| Pause / resume | P |
-| Restart | R |
-| Add / subtract 10 seconds | = / - |
-| Toggle overlay | O |
-| Toggle timer | C |
-| Emergency clear | Ctrl+Shift+X |
-| End segment | Ctrl+Shift+E |
-
-Shortcuts require focus in the producer page, outside form controls. Repeated keydown events are ignored. Browser or OS reserved shortcuts may not be available. A Stream Deck can send these keys when the producer page has focus; global hotkeys, native Stream Deck profiles and a direct action API are not implemented yet.
-
-## Architecture
-
-- `index.html`: producer controls and preview.
-- `display.html`: dedicated read-only transparent display entry.
-- `app.js`: state machine, timers, layouts, hotkeys and local synchronization.
-- `peer.js`: WebRTC DataChannel transport and manual offer/answer pairing.
-- `README.md`: operating guide.
-
-The producer is the sole state writer. It publishes full snapshots over BroadcastChannel and each open peer channel. Displays render timers using absolute deadlines; clocks should be synchronized if using different computers. No backend, analytics, external signaling, or media permissions are required. Static hosting is needed to load the site; opening local files directly is not supported. Refreshing the producer or display requires re-pairing WebRTC connections.
-
-## Manual acceptance checklist
-
-- [ ] Load the Pages producer without console errors.
-- [ ] Open a wide overlay and verify setup changes after Lock setup.
-- [ ] Pair two different browsers, then multiple displays; verify all receive the same state.
-- [ ] Disconnect a display, verify its timer continues, and re-pair.
-- [ ] Test both callers and both calls; verify assignment and speaking order.
-- [ ] Verify thinking and both argument timers, including zero and early cues.
-- [ ] Test pause/resume, restart, time adjustments, previous stage and reset.
-- [ ] Verify all five output formats and check long topic/position text for clipping.
-- [ ] Remap a key, reject a duplicate, export and import a profile.
-- [ ] Verify shortcuts do not trigger while typing.
-- [ ] Verify emergency clear and restore via toggle.
-- [ ] Test actual OBS browser-source transparency and synchronization.
-- [ ] Rehearse a complete segment before using it on air.
-
-This checklist is a test plan, not a claim that the tests have passed.
-
-## Troubleshooting
-
-**Blank or stale overlay:** verify the same scheme, hostname and port. Check the overlay visibility toggle. Reload both pages. For separate browsers, complete WebRTC pairing and check the connection state.
-
-**Hotkeys do not work:** enable shortcuts, focus the producer page outside input fields and check browser shortcut conflicts.
-
-**Timer shows zero:** this is intentional; cue the next stage manually.
-
-**Graphics cover a face:** adjust the underlying camera crop. Fine-grained safe-area positioning and text fitting are planned.
-
-**Need to clear saved state:** use Reset for a new debate, or clear site data for the local origin to restore all defaults.
-
-## Roadmap
-
-- Improve pairing UX, connection health and recovery without a backend.
-- OBS-tested multi-output synchronization, reconnection and scene integration.
-- Global hotkeys and Stream Deck profile/API.
-- Distinct combined/minimal layouts and timer placement variants.
-- Per-output layout settings, adjustable anchors, safe areas and text fitting.
-- Actual camera-reference calibration and improved animations.
-- Automated state-machine, browser and integration tests.
-- GitHub Pages deployment verification, release packaging and accessibility review.
-
-## Feedback and contributing
-
-Open a GitHub issue with the browser/OBS version, steps to reproduce, expected behavior and actual behavior. Screenshots with private information removed are useful. Keep contributions dependency-light and avoid including copyrighted show footage or logos.
-
-No license has been selected yet; public repository visibility does not itself grant permission to redistribute or modify the code. The repository owner should choose a license before accepting external contributions.
-
-## Release status
-
-This is the browser-only source-code alpha, not a production-certified release. Core automated checks are included; successful CI, formal release tagging, live Pages deployment and real OBS validation have not been verified.
-
-## v0.4.1 producer and rebuttal update
-
-The live workspace places the preview beside a large active clock, contextual cues and emergency clear. Setup contains a dedicated optional rebuttal section with independent Linus and Luke durations (60 seconds each by default). After both opening arguments, the producer cues the first rebuttal and then the second; the overlay labels the active round REBUTTAL. The same speaking order is used for both rounds. Each rebuttal starts a fresh countdown, independent of opening argument time. OBS and browser integration validation remain pending.
-
-## v0.5 production workflow
-
-Single live preview remains intentional: no Preview/Program switch or Take button. New controls include a stage timeline, contextual controls, named debate presets, topic queue, reversed rebuttal order, optional closing statements, overtime policies, unused-time banking, coin history, custom theme controls, clip metadata, undo, display diagnostics and JSON/CSV event exports. In layout edit mode drag headers/positions or timer; scroll over headers/positions to scale; reset the selected output to defaults. Presets capture committed settings; lock setup to commit draft fields. Queue loading requires setup or a finished debate. Manual clip markers appear in exports. Diagnostics for automatic displays show resolution, version and heartbeat age; direct peer latency is not measured. Undo is in-memory only. Browser and OBS validation, full alignment guides and polished transitions remain pending.
-
-## v0.5.2 branded coin
-
-New sessions default to 30 seconds for every timed stage. Existing saved configurations are retained. Heads uses the LTT SVG from https://commons.wikimedia.org/wiki/File:2018_Linus_Tech_Tips_logo.svg (remote image); tails uses a bundled Floatplane SVG from Simple Icons (https://github.com/simple-icons/simple-icons/blob/develop/icons/floatplane.svg). Logos remain trademarks of their owners. The coin has two rotating faces with orange and blue rims.
-
-## v0.5.3 coin controls
-
-Normal flip and random reflip use cryptographic randomness. Force LTT and Force Floatplane explicitly select the outcome; all use the same 2.4-second animation and are available only during the coin stage after caller and call are selected. Forced outcomes are recorded in history. Both runtime image URLs are repository-relative; the vendor-logo workflow retrieves the original Wikimedia SVG and commits it to assets/ltt.svg. Verify that workflow completed before using this version.
+For bugs, include the browser version, output format, whether it was a launched window or OBS Browser Source, and steps to reproduce. The project is a community prototype and is provided without warranty.

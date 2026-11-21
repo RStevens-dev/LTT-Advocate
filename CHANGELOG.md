@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 — Visual layout editor (experimental)
+
+- Added drag-to-position editing for topic banners, position banners, timer, coin and brand labels.
+- Added per-element visibility, X/Y offset, scale, opacity, font sizing and alignment controls.
+- Paired host elements can mirror edits or be unlinked for independent adjustment.
+- Layout overrides persist per output format, synchronize to read-only displays and support JSON import/export.
+- v0.6.2 pre-editor ZIP packaging workflow added before editor development; artifact publication has not been independently verified.
+- Browser and OBS acceptance testing remain outstanding.
+
+
 ## 0.6.2 — Automatic guided walkthrough
 
 - Added `?walkthrough=1` (alias `?tour`) to launch a producer-page overlay that automatically demonstrates a complete debate.

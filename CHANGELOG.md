@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.2 — Automatic guided walkthrough
+
+- Added `?walkthrough=1` (alias `?tour`) to launch a producer-page overlay that automatically demonstrates a complete debate.
+- Guided spotlight and explanatory captions cover setup, caller, coin, thinking, arguments, rebuttals, closings and emergency clear, with Pause, Next, Back and Exit.
+- The rehearsal uses isolated sample state, bypasses the live producer lock without claiming it, and does not publish or persist the sample debate.
+- Real-browser visual behavior remains unverified.
+
+
 ## 0.6.1 — Single producer guard
 
 - Enforce one active producer per browser origin using an exclusive Web Lock, with a short-lived local-storage lease fallback.

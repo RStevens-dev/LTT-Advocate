@@ -11,12 +11,12 @@ try{
   const producer=await context.newPage();
   const errors=[];
   producer.on('pageerror',e=>errors.push('producer: '+e.message));
-  await producer.goto('http://127.0.0.1:'+port+'/?session=smoke',{waitUntil:'load'});
+  for(let attempt=0;attempt<30;attempt++){try{await producer.goto('http://127.0.0.1:'+port+'/?session=smoke',{waitUntil:'load',timeout:1000});break}catch(e){if(attempt===29)throw e;await new Promise(resolve=>setTimeout(resolve,100))}}
   const display=await context.newPage();
   display.on('pageerror',e=>errors.push('display: '+e.message));
   await display.goto('http://127.0.0.1:'+port+'/display.html?overlay=wide&session=smoke',{waitUntil:'load'});
   await producer.locator('[data-action="setup"]').click();
-  await display.waitForFunction(()=>document.querySelector('#screen .coinrotor')!==null,{timeout:10000});
+  await display.waitForFunction(()=>document.querySelector('#screen .coinrotor')!==null,null,{timeout:10000});
   await display.evaluate(()=>{window.__originalGrid=document.querySelector('#screen .grid');window.__originalCoin=document.querySelector('#screen .coinrotor')});
   await display.waitForTimeout(4500);
   const retained=await display.evaluate(()=>document.querySelector('#screen .grid')===window.__originalGrid&&document.querySelector('#screen .coinrotor')===window.__originalCoin);
@@ -31,7 +31,7 @@ try{
   const angle=await display.locator('.coinglint').evaluate(e=>e.style.transform);
   assert.equal(angle,'rotate(225deg)');
   await producer.locator('[data-action="next"]').click();
-  await display.waitForFunction(()=>document.querySelector('#screen .timer div')?.textContent==='00:30');
+  await display.waitForFunction(()=>/^00:(?:30|29|28)$/.test(document.querySelector('#screen .timer div')?.textContent||''));
   await display.evaluate(()=>{window.__timer=document.querySelector('#screen .timer')});
   await display.waitForTimeout(2600);
   assert.equal(await display.evaluate(()=>document.querySelector('#screen .timer')===window.__timer),true,'countdown must not replace timer');

@@ -11,3 +11,6 @@ jobs:
       - run: node --test tests/*.test.mjs
       - run: node --input-type=module --check < app.js
       - run: node --input-type=module --check < peer.js
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/browser-smoke.mjs

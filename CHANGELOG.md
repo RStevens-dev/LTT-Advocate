@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.1 — Single producer guard
+
+- Enforce one active producer per browser origin using an exclusive Web Lock, with a short-lived local-storage lease fallback.
+- Block duplicate producer windows with an explanation and Retry button; separate display windows remain permitted.
+- Prevent blocked producers from publishing state or responding to display synchronization requests.
+- Add duplicate-producer coverage to the Chromium smoke test.
+
+
 ## 0.6.0 — Production-readiness pass (2026-11-20)
 
 - Corrected a root cause of wide-display flashing: synchronized heartbeat timestamps were inadvertently part of the visual render identity, causing unnecessary DOM replacement.

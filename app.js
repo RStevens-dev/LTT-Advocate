@@ -173,7 +173,7 @@ function startWalkthrough(){
   function show(n){clearTimer();runId++;index=Math.max(0,Math.min(steps.length-1,n));const step=steps[index];step.run();panel.querySelector('#tour-count').textContent='STEP '+(index+1)+' OF '+steps.length+' · AUTO WALKTHROUGH';panel.querySelector('#tour-title').textContent=step.title;panel.querySelector('#tour-detail').textContent=step.detail;button('back').disabled=index===0;button('next').textContent=index===steps.length-1?'Restart':'Next';button('pause').textContent=paused?'Resume':'Pause';spotlight(step.target);if(!paused&&index<steps.length-1)timer=setTimeout(()=>show(index+1),index===5?4400:3600)}
   function exit(){clearTimer();walkthroughActive=false;if(target){target.style.outline=target.dataset.tourOutline||'';target.style.outlineOffset=target.dataset.tourOffset||'';target.style.position=target.dataset.tourPosition||'';target.style.zIndex=target.dataset.tourZ||''}shade.remove();panel.remove();location.href=location.pathname}
   button('next').onclick=()=>show(index===steps.length-1?0:index+1);
-  button('back').onclick=()=>{paused=true;show(0);for(let i=1;i<index;i++){}};
+  button('back').onclick=()=>{const goal=index-1;paused=true;show(0);for(let i=1;i<=goal;i++)show(i)};
   button('pause').onclick=()=>{paused=!paused;clearTimer();button('pause').textContent=paused?'Resume':'Pause';if(!paused)timer=setTimeout(()=>show(index+1),3600)};
   button('exit').onclick=exit;
   walkthroughActive=true;show(0);

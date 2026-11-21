@@ -1,3 +1,8 @@
+export function applyLayoutElements(screen,settings,active=false,selected=''){
+ const groups=[['topic','.header'],['positions','.position'],['timer','.timer'],['coin','.coin'],['brand','.brand']];
+ screen.classList.toggle('editor-active',active);
+ for(const [group,selector] of groups){let nodes=[...screen.querySelectorAll(selector)];nodes.forEach((node,i)=>{let key=group+':'+(i===0?0:1),v=settings?.[key]||{};node.dataset.editKey=key;node.classList.toggle('editor-selected',active&&key===selected);if(v.visible===false)node.style.display='none';node.style.translate=(v.x||0)+'cqw '+(v.y||0)+'cqw';node.style.scale=String((v.scale??100)/100);node.style.opacity=String((v.opacity??100)/100);node.style.fontSize=v.font===undefined?'':(v.font/100)+'em';node.style.textAlign=v.align||''})}
+}
 // Visual layout editor: per-format, mirrored element overrides. No backend required.
 export function installLayoutEditor({getState,getFormat,save,render,screen,enabled}){
  const groups=[['topic','Topic banners','.header'],['positions','Position banners','.position'],['timer','Timers','.timer'],['coin','Coin graphic','.coin'],['brand','Brand labels','.brand']];
@@ -43,6 +48,6 @@ export function installLayoutEditor({getState,getFormat,save,render,screen,enabl
  screen().addEventListener('pointerdown',e=>{if(!$('ve-enabled').checked)return;let node=e.target.closest('[data-edit-key]');if(!node)return;let key=node.dataset.editKey,[group,side]=key.split(':');$('ve-element').value=group;$('ve-side').value=side;sync();dragging={id:e.pointerId,key,x:e.clientX,y:e.clientY,start:{...selected()},width:screen().getBoundingClientRect().width,height:screen().getBoundingClientRect().height};e.preventDefault()});
  window.addEventListener('pointermove',e=>{if(!dragging||dragging.id!==e.pointerId)return;let d=dragging;edit(d.key,{x:clamp((d.start.x||0)+(e.clientX-d.x)/d.width*100,-100,100),y:clamp((d.start.y||0)+(e.clientY-d.y)/d.height*100,-100,100)});sync()});
  for(let ev of ['pointerup','pointercancel'])window.addEventListener(ev,()=>{dragging=null});
- function apply(){let p=screen(),active=$('ve-enabled').checked;p.classList.toggle('editor-active',active);for(let [group,,selector] of groups){let nodes=[...p.querySelectorAll(selector)];nodes.forEach((node,i)=>{let side=i===0?0:1,key=group+':'+side,v=current()[key]||{};node.dataset.editKey=key;node.classList.toggle('editor-selected',active&&key===elementKey());if(v.visible===false)node.style.display='none';node.style.translate=(v.x||0)+'cqw '+(v.y||0)+'cqw';node.style.scale=String((v.scale??100)/100);node.style.opacity=String((v.opacity??100)/100);node.style.fontSize=v.font===undefined?'':(v.font/100)+'em';node.style.textAlign=v.align||''})}}
+ function apply(){applyLayoutElements(screen(),current(),$('ve-enabled').checked,elementKey())}
  sync();return {apply,sync};
 }

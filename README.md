@@ -9,7 +9,7 @@ An unofficial, browser-based production tool inspired by the WAN Show’s Devil�
 
 [**🎬 Try the guided walkthrough**](https://rstevens-dev.github.io/LTT-Advocate/?walkthrough=1) · [**🎛️ Open the producer**](https://rstevens-dev.github.io/LTT-Advocate/) · [**📺 View the wide display**](https://rstevens-dev.github.io/LTT-Advocate/display.html?overlay=wide)
 
-![Version](https://img.shields.io/badge/version-0.6.2-orange) ![Platform](https://img.shields.io/badge/platform-browser--only-333333) ![Status](https://img.shields.io/badge/status-experimental-yellow)
+![Version](https://img.shields.io/badge/version-0.7.0-orange) ![Platform](https://img.shields.io/badge/platform-browser--only-333333) ![Status](https://img.shields.io/badge/status-experimental-yellow)
 
 </div>
 
@@ -87,6 +87,14 @@ FINISH / CLEAR
 ```
 
 All durations can be configured. Timers can be paused, resumed, restarted or adjusted. Optional rebuttal order, closing statements, overtime and time banking are configurable.
+
+## Visual layout editor (v0.7.0)
+
+The producer now includes a **Visual layout editor** above the controls. Choose an output format, enable drag editing, and drag outlined graphics directly in the preview. Select the element and side to fine-tune X/Y offsets, scale, opacity, font size, text alignment, or visibility. **Mirror paired elements** is enabled by default: editing a left-side topic, position, or brand element applies a matching offset to its right-side counterpart. Uncheck it for independent positioning. Coin and central timer elements are single items, so they are not mirrored.
+
+Settings are stored separately for wide, Linus, Luke, stacked and square formats and are applied to launched displays through the existing session sync. Use **Reset selected**, **Reset this format**, **Export layouts**, and **Import layouts** to manage configurations. The earlier v0.6.2 build remains available through the [pre-editor release workflow](https://github.com/RStevens-dev/LTT-Advocate/actions/workflows/release-v0.6.2.yml); confirm the release artifact is available before relying on it as an archive.
+
+**Current scope:** the editor controls the generated overlay components, not the mock camera or actual video feeds. Its real-browser behavior still needs acceptance testing.
 
 ## Broadcast and clip outputs
 
@@ -204,6 +212,7 @@ GitHub Actions is configured to run unit tests, syntax checks and a Chromium smo
 | `index.html` | Producer interface and preview |
 | `display.html` | Transparent output entry point |
 | `app.js` | Debate flow, rendering, tour and synchronization |
+| `layout-editor.mjs` | Visual editor, mirrored element transforms and per-format settings |
 | `core.mjs` | Shared pure logic |
 | `peer.js` | Manual WebRTC connection |
 | `assets/` | Bundled coin artwork |
